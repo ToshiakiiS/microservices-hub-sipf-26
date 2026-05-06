@@ -111,7 +111,7 @@ public class PagamentoControllerIT {
     }
 
     @Test
-    void updatePagamentoShouldReturn400WhenIdDoesNotExist() throws Exception {
+    void updatePagamentoShouldReturn404WhenIdDoesNotExist() throws Exception {
         PagamentoDTO requestDTO = new PagamentoDTO(Factory.createPagamentoSemId());
         String jsonRequestBody = objectMapper.writeValueAsString(requestDTO);
 
@@ -123,6 +123,15 @@ public class PagamentoControllerIT {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void updatePagamentoShouldReturn422WhenInvalid() throws Exception {
+        pagamento = Factory.createPagamento();
+        pagamento.setNome(null);
+        pagamento.setValor(BigDecimal.valueOf(-32.05));
+        pagamento.setPedidoId(null);
+        PagamentoDTO requestDTO = new PagamentoDTO(pagamento);
+        String jsonRequestBody = objectMapper.writeValueAsString(requestDTO);
+    }
     @Test
     void deletePagamentoShouldReturn204WhenIdExists() throws Exception {
         mockMvc.perform(delete("/pagamento/{id}", existingId))
