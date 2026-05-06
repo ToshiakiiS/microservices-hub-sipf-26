@@ -230,6 +230,23 @@ public class PagamentoControllerTest {
                 .andExpect(jsonPath("$.nome").value(pagamento.getNome()));
 
         Mockito.verify(pagamentoService).update(eq(existingId), any(PagamentoDTO.class));
+    }
+    @Test
+    void updatePagamentoShouldReturn422WhenInvalid() throws Exception {
+
+        Pagamento pagamentoInvalido = Factory.createPagamento();
+        pagamentoInvalido.setValor(BigDecimal.ZERO);
+        pagamentoInvalido.setNome(null);
+        PagamentoDTO requestDTO = new PagamentoDTO(pagamentoInvalido);
+        String jsonRequestBody = objectMapper.writeValueAsString(requestDTO);
+
+        mockMvc.perform(put("/pagamentos/{id}", existingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(jsonRequestBody))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+
         Mockito.verifyNoMoreInteractions(pagamentoService);
     }
 
